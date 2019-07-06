@@ -56,23 +56,22 @@ def create_index
   puts "Creating index: #{INDEX_NAME}"
   client.indices.create  index: INDEX_NAME,
                          body: {
-                           mappings: {
-                             document: {
-                               properties: {
-                                 command: {
-                                   type: :text
-                                 },
-                                 description: {
-                                   type: :text,
-                                   analyzer: :english
-                                 },
-                                 manpage: {
-                                   type: :text,
-                                   analyzer: :english
-                                 }
-                               }
-                             }
-                           }
+                          mappings: {
+                            properties: {
+                              type: { type: :text},
+                              command: {
+                                type: :text
+                              },
+                              description: {
+                                type: :text,
+                                  analyzer: :english
+                              },
+                              manpage: {
+                                type: :text,
+                                  analyzer: :english
+                                }
+                              }
+                          }
                          }
 end
 
@@ -86,7 +85,7 @@ def load_manpages
     manpage = `man #{command}`
 
     client.index index: INDEX_NAME,
-                  type: :document,
+                  type: '_doc',
                   body: {
                     command: command,
                     description: description,
