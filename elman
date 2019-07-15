@@ -122,7 +122,7 @@ def load_manpages
     manpage = `man #{command}`
 
     client.index index: INDEX_NAME,
-                  type: '_doc',
+                  type: client.info['version']['number'].to_i <= 6 ? :document : '_doc',
                   body: {
                     command: command,
                     description: description,
