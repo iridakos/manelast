@@ -49,63 +49,29 @@ def delete_index
   client.indices.delete index: INDEX_NAME rescue false
 end
 
-def check_es_version
-  client.info[:version][:number].to_i
-end
-
-def choose_mapping
-  return if client.indices.exists? index: INDEX_NAME
-
-  puts "Detected Elasticsearch #{client.info[:version][:number]}"
-  puts "Creating index: #{INDEX_NAME}"
-
-  if check_es_version <= 6
-    create_index_old
-  else
-    create_index
-  end
-end
-
-def create_index_old
-  client.indices.create  index: INDEX_NAME,
-                         body: {
-                           mappings: {
-                             document: {
-                               properties: {
-                                 command: {
-                                   type: :text
-                                 },
-                                 description: {
-                                   type: :text,
-                                   analyzer: :english
-                                 },
-                                 manpage: {
-                                   type: :text,
-                                   analyzer: :english
-                                 }
-                               }
-                             }
 # Creates the index
 def create_index
-	client.indices.create  index: INDEX_NAME,
+  return if client.indices.exists? index: INDEX_NAME
+
+  puts "Creating index: #{INDEX_NAME}"
+  client.indices.create  index: INDEX_NAME,
                          body: {
-                           mappings: {
-                             document: {
-                               properties: {
-                                 command: {
-                                   type: :text
-                                 },
-                                 description: {
-                                   type: :text,
-                                   analyzer: :english
-                                 },
-                                 manpage: {
-                                   type: :text,
-                                   analyzer: :english
-                                 }
-                               }
-                             }
-                           }
+                          mappings: {
+                            properties: {
+                              type: { type: :text},
+                              command: {
+                                type: :text
+                              },
+                              description: {
+                                type: :text,
+                                  analyzer: :english
+                              },
+                              manpage: {
+                                type: :text,
+                                  analyzer: :english
+                                }
+                              }
+                          }
                          }
 end
 
