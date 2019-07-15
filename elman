@@ -50,13 +50,13 @@ def delete_index
 end
 
 def check_es_version
-  client.info[:version][:number].to_i
+  client.info['version']['number'].to_i
 end
 
 def choose_mapping
   return if client.indices.exists? index: INDEX_NAME
 
-  puts "Detected Elasticsearch #{client.info[:version][:number]}"
+  puts "Detected Elasticsearch #{client.info['version']['number']}"
   puts "Creating index: #{INDEX_NAME}"
 
   if check_es_version <= 6
