@@ -49,11 +49,25 @@ def delete_index
   client.indices.delete index: INDEX_NAME rescue false
 end
 
-# Creates the index
-def create_index
+def check_es_version
+  client.info[:version][:number].to_i
+end
+
+def choose_mapping
   return if client.indices.exists? index: INDEX_NAME
 
+  puts "Detected Elasticsearch #{client.info[:version][:number]}"
   puts "Creating index: #{INDEX_NAME}"
+
+  if check_es_version <= 6
+    create_index_old
+  else
+    create_index
+  end
+end
+
+# Creates the index
+def create_index
   client.indices.create  index: INDEX_NAME,
                          body: {
                           mappings: {
@@ -72,6 +86,29 @@ def create_index
                                 }
                               }
                           }
+                         }
+end
+
+def create_index_old
+	client.indices.create  index: INDEX_NAME,
+                         body: {
+                           mappings: {
+                             document: {
+                               properties: {
+                                 command: {
+                                   type: :text
+                                 },
+                                 description: {
+                                   type: :text,
+                                   analyzer: :english
+                                 },
+                                 manpage: {
+                                   type: :text,
+                                   analyzer: :english
+                                 }
+                               }
+                             }
+                           }
                          }
 end
 
@@ -189,8 +226,8 @@ OptionParser.new do |opts|
 
   opts.on('-s', '--setup', 'Setup elman - (re)creates the index and loads all man pages') do
     delete_index
-    create_index
-    load_manpages
+		choose_mapping    
+		load_manpages
     exit 0
   end
 
